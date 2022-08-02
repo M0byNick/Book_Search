@@ -1,102 +1,77 @@
-import React from 'react';
-import { Navbar, Nav, Container } from 'react-bootstrap';
-import SignupModal from './SignupModal';
-import Auth from '../utils/auth';
-import EmailConfirmedModal from './EmailConfirmedModal';
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Navbar, Nav, Container, Modal, Tab } from 'react-bootstrap';
+import SignUpForm from './SignupForm';
+import LoginForm from './LoginForm';
 
-const Navtabs = ({ currentPage, handlePageChange }) => {
+import Auth from '../utils/auth';
+
+const AppNavbar = () => {
   // set modal display state
-  //const [showModal, setShowModal] = React.useState(false);
-  const [showSignup, setShowSignup] = React.useState(false);
+  const [showModal, setShowModal] = useState(false);
+
   return (
     <>
       <Navbar bg='dark' variant='dark' expand='lg'>
         <Container fluid>
-          <Navbar.Brand>
-            <a href="#" onClick={() => handlePageChange('Home')}>Google Books Search </a>
+          <Navbar.Brand as={Link} to='/'>
+            Google Books Search
           </Navbar.Brand>
           <Navbar.Toggle aria-controls='navbar' />
           <Navbar.Collapse id='navbar'>
             <Nav className='ml-auto'>
+              <Nav.Link as={Link} to='/'>
+                Search For Books
+              </Nav.Link>
               {/* if user is logged in show saved books and logout */}
               {Auth.loggedIn() ? (
-              <>
-                <Nav>
-                  <a
-                    href="#searchbooks"
-                    onClick={() => handlePageChange('SearchBooks')}
-                    // Check to see if the currentPage is `About`, and if so we use the active link class from bootstrap. Otherwise, we set it to a normal nav-link
-                    className={currentPage === 'SearchBooks' ? 'nav-link active' : 'nav-link'}
-                  >
-                    Search Books
-                  </a>
-                </Nav>
-                <Nav>
-                  <a
-                    href="#savedbooks"
-                    onClick={() => handlePageChange('SavedBooks')}
-                    // Check to see if the currentPage is `About`, and if so we use the active link class from bootstrap. Otherwise, we set it to a normal nav-link
-                    className={currentPage === 'SavedBooks' ? 'nav-link active' : 'nav-link'}
-                  >
-                    Saved Books
-                  </a>
-                </Nav>
-                <Nav>
-                  <a
-                    href="#readbooks"
-                    onClick={() => handlePageChange('ReadBooks')}
-                    // Check to see if the currentPage is `About`, and if so we use the active link class from bootstrap. Otherwise, we set it to a normal nav-link
-                    className={currentPage === 'ReadBooks' ? 'nav-link active' : 'nav-link'}
-                  >
-                    Read Books
-                  </a>
-                </Nav>
-                <Nav>
-                  <a
-                    href="#profile"
-                    onClick={() => handlePageChange('Profile')}
-                    // Check to see if the currentPage is `About`, and if so we use the active link class from bootstrap. Otherwise, we set it to a normal nav-link
-                    className={currentPage === 'Profile' ? 'nav-link active' : 'nav-link'}
-                  >
-                    Profile
-                  </a>
-                </Nav>
-                <Nav>
-                  <a
-                    href="#"
-                    onClick={Auth.logout}
-                    // Check to see if the currentPage is `About`, and if so we use the active link class from bootstrap. Otherwise, we set it to a normal nav-link
-                    className={'nav-link'}
-                  >
-                    Logout
-                  </a>
-                </Nav>
-              </>
-               ) : (  
                 <>
-                <Nav>
-                  <a
-                    href="#"
-                    onClick={() => setShowSignup(true)}
-                    // Check to see if the currentPage is `About`, and if so we use the active link class from bootstrap. Otherwise, we set it to a normal nav-link
-                    className={'nav-link'}
-                  >
-                    Signup
-                  </a>
-                </Nav>
+                  <Nav.Link as={Link} to='/saved'>
+                    See Your Books
+                  </Nav.Link>
+                  <Nav.Link onClick={Auth.logout}>Logout</Nav.Link>
                 </>
-              )
-            }
-
-              
+              ) : (
+                <Nav.Link onClick={() => setShowModal(true)}>Login/Sign Up</Nav.Link>
+              )}
             </Nav>
           </Navbar.Collapse>
         </Container>
       </Navbar>
-      <SignupModal showSignup={showSignup} setShowSignup={setShowSignup} />
-      <EmailConfirmedModal/>
+      {/* set modal data up */}
+      <Modal
+        size='lg'
+        show={showModal}
+        onHide={() => setShowModal(false)}
+        aria-labelledby='signup-modal'>
+        {/* tab container to do either signup or login component */}
+        <Tab.Container defaultActiveKey='login'>
+          <Modal.Header closeButton>
+            <Modal.Title id='signup-modal'>
+              <Nav variant='pills'>
+                <Nav.Item>
+                  <Nav.Link eventKey='login'>Login</Nav.Link>
+                </Nav.Item>
+                <Nav.Item>
+                  <Nav.Link eventKey='signup'>Sign Up</Nav.Link>
+                </Nav.Item>
+              </Nav>
+            </Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Tab.Content>
+              <Tab.Pane eventKey='login'>
+                <LoginForm handleModalClose={() => setShowModal(false)} />
+              </Tab.Pane>
+              <Tab.Pane eventKey='signup'>
+                <SignUpForm handleModalClose={() => setShowModal(false)} />
+              </Tab.Pane>
+            </Tab.Content>
+          </Modal.Body>
+        </Tab.Container>
+      </Modal>
     </>
   );
 };
 
-export default Navtabs;
+export default AppNavbar;
